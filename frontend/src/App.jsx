@@ -10,6 +10,7 @@ import {
 import Landing from './Landing';
 import Navbar from './components/Navbar';
 
+console.log("API URL:", import.meta.env.VITE_API_URL)
 function App() {
   const { user } = useUser();
   const [file, setFile] = useState(null);
@@ -87,7 +88,7 @@ function App() {
                         <div className="absolute inset-0 bg-electric-blue/5 opacity-0 group-hover/drop:opacity-100 transition-opacity duration-1000" />
                         <input type="file" accept=".pdf" className="hidden" onChange={(e) => setFile(e.target.files[0])} />
                         
-                        <div className={`p-8 rounded-[2rem] mb-8 transition-all duration-700 ${file ? 'bg-electric-blue text-white scale-110 shadow-3xl shadow-electric-blue/40' : 'bg-white/[0.03] text-white/20 border border-white/5'}`}>
+                        <div className={`p-8 rounded-4xl mb-8 transition-all duration-700 ${file ? 'bg-electric-blue text-white scale-110 shadow-3xl shadow-electric-blue/40' : 'bg-white/[0.03] text-white/20 border border-white/5'}`}>
                           <FileText size={48} className={file ? 'animate-bounce' : ''} />
                         </div>
                         
@@ -107,7 +108,7 @@ function App() {
                         )}
                       </button>
 
-                      <div className="mt-10 pt-8 border-t border-white/[0.03] flex justify-between items-center text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">
+                      <div className="mt-10 pt-8 border-t border-white/3 flex justify-between items-center text-[10px] font-black text-white/10 uppercase tracking-[0.5em]">
                          <span>Security: AES-256</span>
                          <span className="flex items-center gap-2">
                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" /> Optimizer Ready
@@ -119,10 +120,10 @@ function App() {
                       key="result"
                       initial={{ opacity: 0, y: 30 }} 
                       animate={{ opacity: 1, y: 0 }} 
-                      className="glass-card !p-0 overflow-hidden border-electric-blue/20"
+                      className="glass-card p-0! overflow-hidden border-electric-blue/20"
                     >
                       {/* Header */}
-                      <div className="p-10 md:p-12 border-b border-white/[0.05] bg-gradient-to-br from-white/[0.03] to-transparent">
+                      <div className="p-10 md:p-12 border-b border-white/5 bg-linear-to-br from-white/[0.03] to-transparent">
                         <button 
                           onClick={() => setResult(null)}
                           className="flex items-center gap-3 text-white/30 hover:text-white text-[10px] font-black uppercase tracking-[0.4em] mb-10 transition-all group"
