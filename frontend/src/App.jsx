@@ -223,7 +223,7 @@ function App() {
                                 {item.applicantName || "ANONYMOUS_S-73"}
                               </span>
                               <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em]">
-                                {new Date(item.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
+                              {new Date(item.createdAt).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}
                               </span>
                             </div>
                             <div className="flex items-center gap-5">
