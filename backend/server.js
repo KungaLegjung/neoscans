@@ -27,7 +27,10 @@ mongoose.connect(process.env.MONGODB_URI, {
             console.warn("4. Restart this server after saving settings in Atlas.\n");
         }
     });
-
+app.get("/scans", async (req, res) => {
+    const scans = await Scan.find()
+    res.json(scans)
+})
 // Database Schema
 const ResumeSchema = new mongoose.Schema({
     userId: String, // Clerk User ID
