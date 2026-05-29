@@ -83,11 +83,15 @@ function App() {
           }
         });
         const u = response.data;
-        setMonlamUser({
-          id: u.id ? String(u.id) : 'monlam-user',
-          name: u.name || u.username || 'Monlam User',
-          email: u.email || 'user@monlam.ai'
-        });
+        if (u && typeof u === 'object' && !u.error) {
+          setMonlamUser({
+            id: u.id ? String(u.id) : 'monlam-user',
+            name: u.name || u.username || 'Monlam User',
+            email: u.email || 'user@monlam.ai'
+          });
+        } else {
+          throw new Error("Invalid or empty user profile structure");
+        }
       } catch (err) {
         console.error("Failed to fetch Monlam AI profile, token may be expired", err);
         localStorage.removeItem('monlam_access_token');
