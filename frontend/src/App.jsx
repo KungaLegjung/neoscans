@@ -141,9 +141,15 @@ function App() {
   const fetchHistory = async () => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/history?userId=${user.id}`);
-      setHistory(response.data);
+      if (Array.isArray(response.data)) {
+        setHistory(response.data);
+      } else {
+        console.warn("History response data is not an array:", response.data);
+        setHistory([]);
+      }
     } catch (err) {
-      console.error("Failed to fetch history");
+      console.error("Failed to fetch history:", err.message);
+      setHistory([]);
     }
   };
 
