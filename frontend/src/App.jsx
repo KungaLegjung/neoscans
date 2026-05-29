@@ -40,15 +40,22 @@ function App() {
     const code = searchParams.get('code');
     if (code) {
       const clientId = import.meta.env.VITE_MONLAM_CLIENT_ID || '1';
+      const clientSecret = import.meta.env.VITE_MONLAM_CLIENT_SECRET;
       const redirectUri = import.meta.env.VITE_MONLAM_REDIRECT_URI || window.location.origin;
       const tokenUrl = import.meta.env.VITE_MONLAM_TOKEN_URL || 'http://localhost:8000/oauth/token';
       
-      axios.post(tokenUrl, {
+      const payload = {
         grant_type: 'authorization_code',
         client_id: clientId,
         redirect_uri: redirectUri,
         code: code,
-      })
+      };
+      
+      if (clientSecret) {
+        payload.client_secret = clientSecret;
+      }
+      
+      axios.post(tokenUrl, payload)
       .then(res => {
         const accessToken = res.data.access_token;
         if (accessToken) {
