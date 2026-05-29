@@ -37,7 +37,7 @@ function App() {
     }
 
     // Check for authorization code (authorization code flow callback)
-    const code = searchParams.get('code');
+    const code = hashParams.get('code') || searchParams.get('code');
     if (code) {
       const clientId = import.meta.env.VITE_MONLAM_CLIENT_ID || '1';
       const clientSecret = import.meta.env.VITE_MONLAM_CLIENT_SECRET;
