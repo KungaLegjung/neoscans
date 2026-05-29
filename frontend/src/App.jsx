@@ -20,21 +20,51 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState([]);
 
-  // Parse Monlam AI OAuth token from URL or localStorage on mount
+  // Parse Monlam AI OAuth token or code from URL or localStorage on mount
   useEffect(() => {
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const searchParams = new URLSearchParams(window.location.search);
+    
+    // Check for direct access_token (implicit flow callback)
     const token = hashParams.get('access_token') || searchParams.get('access_token') || hashParams.get('token') || searchParams.get('token');
     
     if (token) {
       localStorage.setItem('monlam_access_token', token);
       setMonlamToken(token);
       window.history.replaceState({}, document.title, window.location.pathname);
-    } else {
-      const savedToken = localStorage.getItem('monlam_access_token');
-      if (savedToken) {
-        setMonlamToken(savedToken);
-      }
+      return;
+    }
+
+    // Check for authorization code (authorization code flow callback)
+    const code = searchParams.get('code');
+    if (code) {
+      const clientId = import.meta.env.VITE_MONLAM_CLIENT_ID || '1';
+      const redirectUri = import.meta.env.VITE_MONLAM_REDIRECT_URI || window.location.origin;
+      
+      axios.post('http://localhost:8000/oauth/token', {
+        grant_type: 'authorization_code',
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        code: code,
+      })
+      .then(res => {
+        const accessToken = res.data.access_token;
+        if (accessToken) {
+          localStorage.setItem('monlam_access_token', accessToken);
+          setMonlamToken(accessToken);
+        }
+        window.history.replaceState({}, document.title, window.location.pathname);
+      })
+      .catch(err => {
+        console.error("Monlam AI OAuth Token Exchange failed:", err.response?.data || err.message);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      });
+      return;
+    }
+
+    const savedToken = localStorage.getItem('monlam_access_token');
+    if (savedToken) {
+      setMonlamToken(savedToken);
     }
   }, []);
 
@@ -78,7 +108,8 @@ function App() {
   const handleMonlamLoginClick = () => {
     const clientId = import.meta.env.VITE_MONLAM_CLIENT_ID || '1';
     const redirectUri = import.meta.env.VITE_MONLAM_REDIRECT_URI || window.location.origin;
-    const oauthUrl = `http://localhost:8000/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=*`;
+    // Redirect with response_type=code instead of response_type=token
+    const oauthUrl = `http://localhost:8000/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=*`;
     window.location.href = oauthUrl;
   };
 
