@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { SignedIn, SignedOut, useUser } from "@clerk/clerk-react";
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,6 +20,8 @@ function App() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState([]);
+  
+  const exchangeInProgress = useRef(false);
 
   // Parse Monlam AI OAuth token or code from URL or localStorage on mount
   useEffect(() => {
@@ -38,7 +40,8 @@ function App() {
 
     // Check for authorization code (authorization code flow callback)
     const code = hashParams.get('code') || searchParams.get('code');
-    if (code) {
+    if (code && !exchangeInProgress.current) {
+      exchangeInProgress.current = true;
       const clientId = import.meta.env.VITE_MONLAM_CLIENT_ID || '1';
       const clientSecret = import.meta.env.VITE_MONLAM_CLIENT_SECRET;
       const redirectUri = import.meta.env.VITE_MONLAM_REDIRECT_URI || window.location.origin;
@@ -128,7 +131,7 @@ function App() {
     const redirectUri = import.meta.env.VITE_MONLAM_REDIRECT_URI || window.location.origin;
     const authUrl = import.meta.env.VITE_MONLAM_AUTH_URL || 'http://localhost:8000/oauth/authorize';
     // Redirect with response_type=code instead of response_type=token
-    const oauthUrl = `${authUrl}?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=*`;
+    const oauthUrl = `${authUrl}?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=profile`;
     window.location.href = oauthUrl;
   };
 
