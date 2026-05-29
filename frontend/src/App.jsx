@@ -15,6 +15,7 @@ function App() {
   const { user: clerkUser } = useUser();
   const [monlamUser, setMonlamUser] = useState(null);
   const [monlamToken, setMonlamToken] = useState(null);
+  const [authError, setAuthError] = useState(null);
   const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -57,7 +58,9 @@ function App() {
         window.history.replaceState({}, document.title, window.location.pathname);
       })
       .catch(err => {
-        console.error("Monlam AI OAuth Token Exchange failed:", err.response?.data || err.message);
+        const errMsg = err.response?.data?.error_description || err.response?.data?.error || err.message;
+        console.error("Monlam AI OAuth Token Exchange failed:", errMsg);
+        setAuthError(`Token Exchange Failed: ${errMsg}`);
         window.history.replaceState({}, document.title, window.location.pathname);
       });
       return;
@@ -95,7 +98,9 @@ function App() {
           throw new Error("Invalid or empty user profile structure");
         }
       } catch (err) {
+        const errMsg = err.response?.data?.message || err.message;
         console.error("Failed to fetch Monlam AI profile, token may be expired", err);
+        setAuthError(`Profile Fetch Failed: ${errMsg}`);
         localStorage.removeItem('monlam_access_token');
         setMonlamToken(null);
       }
@@ -158,7 +163,7 @@ function App() {
   return (
     <div className="min-h-screen bg-obsidian text-white font-sans selection:bg-electric-blue/30 selection:text-white">
       {!isAuthenticated ? (
-        <Landing monlamUser={monlamUser} onMonlamLogin={handleMonlamLoginClick} />
+        <Landing monlamUser={monlamUser} onMonlamLogin={handleMonlamLoginClick} authError={authError} />
       ) : (
         <div className="relative min-h-screen mesh-bg">
           <Navbar monlamUser={monlamUser} onMonlamLogout={handleMonlamLogout} onMonlamLogin={handleMonlamLoginClick} />

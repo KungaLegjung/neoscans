@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { LogIn, Sparkles, Zap, Shield, Target, TrendingUp } from 'lucide-react';
 import Navbar from "./components/Navbar";
 
-export default function Landing({ monlamUser, onMonlamLogin }) {
+export default function Landing({ monlamUser, onMonlamLogin, authError }) {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -53,11 +53,21 @@ export default function Landing({ monlamUser, onMonlamLogin }) {
 
             <motion.p
               variants={itemVariants}
-              className="max-w-xl mx-auto text-gray-500 text-lg md:text-xl font-medium leading-relaxed mb-14 px-4"
+              className="max-w-xl mx-auto text-gray-500 text-lg md:text-xl font-medium leading-relaxed mb-10 px-4"
             >
               High-precision resume optimization powered by deterministic AI.
               Engineering your career growth with surgical accuracy.
             </motion.p>
+
+            {authError && (
+              <motion.div
+                variants={itemVariants}
+                className="max-w-md mx-auto mb-8 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/25 text-rose-300 text-xs font-semibold tracking-wide flex items-center justify-center gap-2.5 shadow-2xl shadow-rose-950/20"
+              >
+                <Shield size={16} className="text-rose-400 shrink-0" />
+                <span>{authError}</span>
+              </motion.div>
+            )}
 
             <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-6">
               <SignInButton mode="modal">
