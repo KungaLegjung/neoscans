@@ -12,11 +12,78 @@ import Navbar from './components/Navbar';
 
 
 function App() {
-  const { user } = useUser();
+  const { user: clerkUser } = useUser();
+  const [monlamUser, setMonlamUser] = useState(null);
+  const [monlamToken, setMonlamToken] = useState(null);
   const [file, setFile] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState([]);
+
+  // Parse Monlam AI OAuth token from URL or localStorage on mount
+  useEffect(() => {
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const searchParams = new URLSearchParams(window.location.search);
+    const token = hashParams.get('access_token') || searchParams.get('access_token') || hashParams.get('token') || searchParams.get('token');
+    
+    if (token) {
+      localStorage.setItem('monlam_access_token', token);
+      setMonlamToken(token);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else {
+      const savedToken = localStorage.getItem('monlam_access_token');
+      if (savedToken) {
+        setMonlamToken(savedToken);
+      }
+    }
+  }, []);
+
+  // Fetch Monlam AI profile if token is present
+  useEffect(() => {
+    if (!monlamToken) {
+      setMonlamUser(null);
+      return;
+    }
+    
+    const fetchMonlamProfile = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/auth/me', {
+          headers: {
+            Authorization: `Bearer ${monlamToken}`
+          }
+        });
+        const u = response.data;
+        setMonlamUser({
+          id: u.id ? String(u.id) : 'monlam-user',
+          name: u.name || u.username || 'Monlam User',
+          email: u.email || 'user@monlam.ai'
+        });
+      } catch (err) {
+        console.error("Failed to fetch Monlam AI profile, token may be expired", err);
+        localStorage.removeItem('monlam_access_token');
+        setMonlamToken(null);
+      }
+    };
+    
+    fetchMonlamProfile();
+  }, [monlamToken]);
+
+  const handleMonlamLogout = () => {
+    localStorage.removeItem('monlam_access_token');
+    setMonlamToken(null);
+    setMonlamUser(null);
+    window.location.reload();
+  };
+
+  const handleMonlamLoginClick = () => {
+    const clientId = import.meta.env.VITE_MONLAM_CLIENT_ID || '1';
+    const redirectUri = import.meta.env.VITE_MONLAM_REDIRECT_URI || window.location.origin;
+    const oauthUrl = `http://localhost:8000/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=*`;
+    window.location.href = oauthUrl;
+  };
+
+  const user = clerkUser || monlamUser;
+  const isAuthenticated = !!user;
 
   const fetchHistory = async () => {
     try {
@@ -52,13 +119,11 @@ function App() {
 
   return (
     <div className="min-h-screen bg-obsidian text-white font-sans selection:bg-electric-blue/30 selection:text-white">
-      <SignedOut>
-        <Landing />
-      </SignedOut>
-
-      <SignedIn>
+      {!isAuthenticated ? (
+        <Landing monlamUser={monlamUser} onMonlamLogin={handleMonlamLoginClick} />
+      ) : (
         <div className="relative min-h-screen mesh-bg">
-          <Navbar />
+          <Navbar monlamUser={monlamUser} onMonlamLogout={handleMonlamLogout} onMonlamLogin={handleMonlamLoginClick} />
           
           <main className="max-w-7xl mx-auto pt-32 pb-20 px-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -137,7 +202,7 @@ function App() {
                             <div className="flex items-center gap-3">
                                <div className="px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full">
                                   <p className="text-green-500 font-black text-[9px] uppercase tracking-widest leading-none">Diagnostic Complete</p>
-                               </div>
+                                </div>
                                <p className="text-white/20 text-[10px] font-black uppercase tracking-[0.3em]">Runtime: 1.2s</p>
                             </div>
                           </div>
@@ -266,7 +331,7 @@ function App() {
             </div>
           </main>
         </div>
-      </SignedIn>
+      )}
     </div>
   );
 }

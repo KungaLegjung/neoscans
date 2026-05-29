@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { LogIn, Sparkles, Zap, Shield, Target, TrendingUp } from 'lucide-react';
 import Navbar from "./components/Navbar";
 
-export default function Landing() {
+export default function Landing({ monlamUser, onMonlamLogin }) {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -23,7 +23,7 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-obsidian text-white overflow-hidden mesh-bg">
-      <Navbar />
+      <Navbar monlamUser={monlamUser} onMonlamLogin={onMonlamLogin} />
 
       {/* HERO SECTION */}
       <section className="relative pt-40 pb-24 px-6">
@@ -59,13 +59,20 @@ export default function Landing() {
               Engineering your career growth with surgical accuracy.
             </motion.p>
 
-            <motion.div variants={itemVariants} className="flex flex-col md:flex-row items-center justify-center gap-6">
+            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-6">
               <SignInButton mode="modal">
-                <button className="btn-primary px-12 py-5 text-xl group">
-                  <LogIn size={24} className="group-hover:rotate-12 transition-transform" />
-                  INITIALIZE SYSTEM
+                <button className="px-10 py-5 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-black text-sm tracking-[0.2em] rounded-full transition-all duration-300 active:scale-95 uppercase flex items-center gap-3 cursor-pointer">
+                  <LogIn size={18} />
+                  Clerk Portal
                 </button>
               </SignInButton>
+              <button 
+                onClick={onMonlamLogin}
+                className="px-10 py-5 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white font-black text-sm tracking-[0.2em] rounded-full transition-all duration-500 shadow-2xl shadow-orange-500/20 hover:shadow-orange-500/40 active:scale-95 uppercase flex items-center gap-3 group cursor-pointer"
+              >
+                <Sparkles size={18} className="group-hover:rotate-12 transition-transform" />
+                Login with Monlam AI
+              </button>
             </motion.div>
 
             {/* TRUST INDICATORS REMOVED */}
