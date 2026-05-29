@@ -40,8 +40,9 @@ function App() {
     if (code) {
       const clientId = import.meta.env.VITE_MONLAM_CLIENT_ID || '1';
       const redirectUri = import.meta.env.VITE_MONLAM_REDIRECT_URI || window.location.origin;
+      const tokenUrl = import.meta.env.VITE_MONLAM_TOKEN_URL || 'http://localhost:8000/oauth/token';
       
-      axios.post('http://localhost:8000/oauth/token', {
+      axios.post(tokenUrl, {
         grant_type: 'authorization_code',
         client_id: clientId,
         redirect_uri: redirectUri,
@@ -77,7 +78,8 @@ function App() {
     
     const fetchMonlamProfile = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/auth/me', {
+        const profileUrl = import.meta.env.VITE_MONLAM_PROFILE_URL || 'http://localhost:8000/api/auth/me';
+        const response = await axios.get(profileUrl, {
           headers: {
             Authorization: `Bearer ${monlamToken}`
           }
@@ -112,8 +114,9 @@ function App() {
   const handleMonlamLoginClick = () => {
     const clientId = import.meta.env.VITE_MONLAM_CLIENT_ID || '1';
     const redirectUri = import.meta.env.VITE_MONLAM_REDIRECT_URI || window.location.origin;
+    const authUrl = import.meta.env.VITE_MONLAM_AUTH_URL || 'http://localhost:8000/oauth/authorize';
     // Redirect with response_type=code instead of response_type=token
-    const oauthUrl = `http://localhost:8000/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=*`;
+    const oauthUrl = `${authUrl}?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=*`;
     window.location.href = oauthUrl;
   };
 
