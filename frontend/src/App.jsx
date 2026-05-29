@@ -119,7 +119,23 @@ function App() {
     fetchMonlamProfile();
   }, [monlamToken]);
 
-  const handleMonlamLogout = () => {
+  const handleMonlamLogout = async () => {
+    if (monlamToken) {
+      try {
+        const profileUrl = import.meta.env.VITE_MONLAM_PROFILE_URL || 'http://localhost:8000/api/auth/me';
+        // Dynamically deduce the logout endpoint by replacing /me with /logout
+        const logoutUrl = profileUrl.replace(/\/me$/, '/logout');
+        
+        await axios.post(logoutUrl, {}, {
+          headers: {
+            Authorization: `Bearer ${monlamToken}`
+          }
+        });
+      } catch (err) {
+        console.error('Failed to revoke central OAuth session:', err.message);
+      }
+    }
+
     localStorage.removeItem('monlam_access_token');
     setMonlamToken(null);
     setMonlamUser(null);
